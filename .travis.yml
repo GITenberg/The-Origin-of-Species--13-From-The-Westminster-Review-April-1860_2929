@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: GhwUK0ZTkvvZDZzYohp6U1NN/Ns64WkOgfqWvQrunBpYEevrOmeB03GPjb1tTQfZh2gqK6MPdXvaOQqnHlcCxN2mQY4hiFka3f1AY5aunuCXRZyv5xoQQG0IwJrDsztp+UoNmN5EeTR//W0Ve/ltGkvOoBOQB2onUsIEVQDAd+x3A3MPCG+LjYYmt+bgIqA/fk73MiJaGPY5vklp9mbrw0UjvlEms6faQNrvL1KNzdwRXeayD8vZnP3q35DmRMXKwlL9e2UwuuB4y8LzDkcorhF9aX94dTHwxajQmIxfBA2VpoOQR4v3O1pc5hKhkWtU8/LnSQMikmjBYpPfUxpMuf7Iw4V3r8SvB/YLamgodZ0wbiOA22N+wsqUebGWnie3dAnoOZB8+b6FWO/WPx8MacRPLfqHtsaCkuaDGnhXDM/00zG2kT5RCfVTQA0xGNuB7+Uv9egVQIEFwDMp5Rzxjp7j9q0h5Wal7uTIOexVIAhU/H7H7tIMUI8DRLy4coYqkqaw34umkIAy/OE0Lertu1ibk3/5SGUH7WTDPFuWBNcNgI77UrUYKZiO44sFlrloFyVDIf3Xf45959gwog7BrQueqExeDPzIiSqkGZN0Djm+WoHdyr9ffyPI6OjHxbPHGuQ6FXpmLdpixkcfnT3vFeG1a/tUpbk8X+ETeKpWeg8=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/The-Origin-of-Species--13-From-The-Westminster-Review-April-1860_2929
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
